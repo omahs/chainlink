@@ -63,7 +63,7 @@ COPY --from=1 /go/bin/chainlink /usr/local/bin/
 
 # Dependency of terra-money/core - change arch by using `--build-arg LIBWASMVM_ARCH=aarch64`
 ARG LIBWASMVM_ARCH=x86_64
-COPY --from=1 /go/pkg/mod/github.com/\!cosm\!wasm/wasmvm@v*/api/libwasmvm.aarch64.so /usr/lib/libwasmvm.${LIBWASMVM_ARCH}.so
+COPY --from=1 /go/pkg/mod/github.com/\!cosm\!wasm/wasmvm@v*/api/libwasmvm.${LIBWASMVM_ARCH}.so /usr/lib/libwasmvm.${LIBWASMVM_ARCH}.so
 RUN chmod 755 /usr/lib/libwasmvm.${LIBWASMVM_ARCH}.so
 
 RUN if [ ${CHAINLINK_USER} != root ]; then \

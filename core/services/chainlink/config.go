@@ -1,8 +1,6 @@
 package chainlink
 
 import (
-	"strings"
-
 	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
@@ -41,22 +39,13 @@ type Config struct {
 	Terra TerraConfigs `toml:",omitempty"`
 }
 
-func prettifyTOML(tomlString string) string {
-	// remove runs of line breaks
-	s := multiLineBreak.ReplaceAllLiteralString(tomlString, "\n")
-	// restore them preceding keys
-	s = strings.Replace(s, "\n[", "\n\n[", -1)
-	s = strings.TrimPrefix(s, "\n")
-	return s
-}
-
-// TOMLString returns a pretty-printed TOML encoded string, with extra line breaks removed.
+// TOMLString returns a TOML encoded string.
 func (c *Config) TOMLString() (string, error) {
 	b, err := toml.Marshal(c)
 	if err != nil {
 		return "", err
 	}
-	return prettifyTOML(string(b)), nil
+	return string(b), nil
 }
 
 func (c *Config) Validate() error {
@@ -171,6 +160,9 @@ type EVMConfig struct {
 	evmcfg.Chain
 	Nodes EVMNodes
 }
+
+// Ensure that the embedded struct will be validated (w/o requiring a pointer receiver).
+var _ config.Validated = evmcfg.Chain{}
 
 func (c *EVMConfig) setFromDB(ch evmtyp.DBChain, nodes []evmtyp.Node) error {
 	c.ChainID = &ch.ID

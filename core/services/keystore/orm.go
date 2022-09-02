@@ -34,7 +34,7 @@ func (orm ksORM) saveEncryptedKeyRing(kr *encryptedKeyRing, callbacks ...func(pg
 	return orm.q.Transaction(func(tx pg.Queryer) error {
 		_, err := tx.Exec(`
 		UPDATE encrypted_key_rings
-		SET encrypted_keys = $1
+		SET encrypted_keys = $1, updated_at = NOW()
 	`, kr.EncryptedKeys)
 		if err != nil {
 			return errors.Wrap(err, "while saving keyring")

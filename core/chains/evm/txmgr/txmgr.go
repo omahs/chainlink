@@ -79,7 +79,7 @@ type TxManager interface {
 	GetGasEstimator() gas.Estimator
 	RegisterResumeCallback(fn ResumeCallback)
 	SendEther(chainID *big.Int, from, to common.Address, value assets.Eth, gasLimit uint32) (etx EthTx, err error)
-	Reset(f func(), addr common.Address, abandon bool) error
+	Reset(ctx context.Context, f func(), addr common.Address, abandon bool) error
 }
 
 type reset struct {
@@ -229,13 +229,13 @@ func (b *Txm) Start(ctx context.Context) (merr error) {
 
 // Reset stops EthBroadcaster/EthConfirmer, executes callback, then starts them
 // again
-func (b *Txm) Reset(callback func(), addr common.Address, abandon bool) (err error) {
+func (b *Txm) Reset(ctx context.Context, callback func(), addr common.Address, abandon bool) (err error) {
 	ok := b.IfStarted(func() {
 		done := make(chan error)
 		f := func() {
 			callback()
 			if abandon {
-				err = b.abandon(addr)
+				err = b.abandon(ctx, addr)
 			}
 		}
 
@@ -251,8 +251,8 @@ func (b *Txm) Reset(callback func(), addr common.Address, abandon bool) (err err
 // abandon, scoped to the key of this txm:
 // - marks all pending and inflight transactions fatally errored (note: at this point all transactions are either confirmed or fatally errored)
 // this must not be run while EthBroadcaster or EthConfirmer are running
-func (b *Txm) abandon(addr common.Address) (err error) {
-	_, err = b.q.Exec(`UPDATE eth_txes SET state='fatal_error', nonce = NULL, error = 'abandoned' WHERE state IN ('unconfirmed', 'in_progress', 'unstarted') AND evm_chain_id = $1 AND from_address = $2`, b.chainID.String(), addr)
+func (b *Txm) abandon(ctx context.Context, addr common.Address) (err error) {
+	_, err = b.q.WithOpts(pg.WithParentCtx(ctx)).Exec(`UPDATE eth_txes SET state='fatal_error', nonce = NULL, error = 'abandoned' WHERE state IN ('unconfirmed', 'in_progress', 'unstarted') AND evm_chain_id = $1 AND from_address = $2`, b.chainID.String(), addr)
 	return errors.Wrapf(err, "abandon failed to update eth_txes for key %s", addr.Hex())
 }
 
@@ -715,7 +715,7 @@ func (n *NullTxManager) Trigger(common.Address) { panic(n.ErrMsg) }
 func (n *NullTxManager) CreateEthTransaction(NewTx, ...pg.QOpt) (etx EthTx, err error) {
 	return etx, errors.New(n.ErrMsg)
 }
-func (n *NullTxManager) Reset(f func(), addr common.Address, abandon bool) error {
+func (n *NullTxManager) Reset(ctx context.Context, f func(), addr common.Address, abandon bool) error {
 	return nil
 }
 

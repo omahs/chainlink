@@ -825,7 +825,7 @@ func TestTxm_Reset(t *testing.T) {
 	t.Run("returns error if not started", func(t *testing.T) {
 		f := new(fnMock)
 
-		err := txm.Reset(f.Fn, addr, false)
+		err := txm.Reset(testutils.Context(t), f.Fn, addr, false)
 		require.Error(t, err)
 		assert.EqualError(t, err, "not started")
 
@@ -837,7 +837,7 @@ func TestTxm_Reset(t *testing.T) {
 	t.Run("calls function if started", func(t *testing.T) {
 		f := new(fnMock)
 
-		err := txm.Reset(f.Fn, addr, false)
+		err := txm.Reset(testutils.Context(t), f.Fn, addr, false)
 		require.NoError(t, err)
 
 		f.AssertCalled(t)
@@ -846,7 +846,7 @@ func TestTxm_Reset(t *testing.T) {
 	t.Run("calls function and deletes relevant eth_txes if abandon=true", func(t *testing.T) {
 		f := new(fnMock)
 
-		err := txm.Reset(f.Fn, addr, true)
+		err := txm.Reset(testutils.Context(t), f.Fn, addr, true)
 		require.NoError(t, err)
 
 		f.AssertCalled(t)

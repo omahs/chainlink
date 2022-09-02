@@ -12,6 +12,7 @@ import (
 	"github.com/smartcontractkit/chainlink/core/chains/evm"
 	"github.com/smartcontractkit/chainlink/core/services/chainlink"
 	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/ethkey"
+	"github.com/smartcontractkit/chainlink/core/services/pg"
 	"github.com/smartcontractkit/chainlink/core/utils"
 	"github.com/smartcontractkit/chainlink/core/web/presenters"
 
@@ -356,9 +357,9 @@ func (ekc *ETHKeysController) Chain(c *gin.Context) {
 	// Reset the chain
 	if abandon || nonce >= 0 {
 		var resetErr error
-		err = chain.TxManager().Reset(func() {
+		err = chain.TxManager().Reset(c.Request.Context(), func() {
 			if nonce >= 0 {
-				resetErr = kst.Reset(address, chain.ID(), nonce)
+				resetErr = kst.Reset(address, chain.ID(), nonce, pg.WithParentCtx(c.Request.Context()))
 			}
 		}, address, abandon)
 		err = multierr.Combine(err, resetErr)
@@ -378,9 +379,9 @@ func (ekc *ETHKeysController) Chain(c *gin.Context) {
 		}
 
 		if enabled {
-			err = kst.Enable(address, chain.ID())
+			err = kst.Enable(address, chain.ID(), pg.WithParentCtx(c.Request.Context()))
 		} else {
-			err = kst.Disable(address, chain.ID())
+			err = kst.Disable(address, chain.ID(), pg.WithParentCtx(c.Request.Context()))
 		}
 		if err != nil {
 			jsonAPIError(c, http.StatusInternalServerError, err)

@@ -123,13 +123,13 @@ func (_m *TxManager) RegisterResumeCallback(fn txmgr.ResumeCallback) {
 	_m.Called(fn)
 }
 
-// Reset provides a mock function with given fields: f, addr, abandon
-func (_m *TxManager) Reset(f func(), addr common.Address, abandon bool) error {
-	ret := _m.Called(f, addr, abandon)
+// Reset provides a mock function with given fields: ctx, f, addr, abandon
+func (_m *TxManager) Reset(ctx context.Context, f func(), addr common.Address, abandon bool) error {
+	ret := _m.Called(ctx, f, addr, abandon)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(func(), common.Address, bool) error); ok {
-		r0 = rf(f, addr, abandon)
+	if rf, ok := ret.Get(0).(func(context.Context, func(), common.Address, bool) error); ok {
+		r0 = rf(ctx, f, addr, abandon)
 	} else {
 		r0 = ret.Error(0)
 	}

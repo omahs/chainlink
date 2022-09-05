@@ -100,9 +100,9 @@ before(async () => {
 
   linkTokenFactory = await ethers.getContractFactory('LinkToken')
   // need full path because there are two contracts with name MockV3Aggregator
-  mockV3AggregatorFactory = (await ethers.getContractFactory(
+  mockV3AggregatorFactory = ((await ethers.getContractFactory(
     'src/v0.8/tests/MockV3Aggregator.sol:MockV3Aggregator',
-  )) as unknown as MockV3AggregatorFactory
+  )) as unknown) as MockV3AggregatorFactory
   // @ts-ignore bug in autogen file
   keeperRegistryFactory = await ethers.getContractFactory('KeeperRegistry2_0')
   // @ts-ignore bug in autogen file
@@ -1987,11 +1987,11 @@ describe('KeeperRegistry2_0', () => {
     })
 
     it('marks the contract as paused', async () => {
-      assert.isFalse(await registry.paused())
+      assert.isFalse((await registry.getState()).state.paused)
 
       await registry.connect(owner).pause()
 
-      assert.isTrue(await registry.paused())
+      assert.isTrue((await registry.getState()).state.paused)
     })
 
     it('Does not allow transmits when paused', async () => {
@@ -2040,11 +2040,11 @@ describe('KeeperRegistry2_0', () => {
     })
 
     it('marks the contract as not paused', async () => {
-      assert.isTrue(await registry.paused())
+      assert.isTrue((await registry.getState()).state.paused)
 
       await registry.connect(owner).unpause()
 
-      assert.isFalse(await registry.paused())
+      assert.isFalse((await registry.getState()).state.paused)
     })
   })
 

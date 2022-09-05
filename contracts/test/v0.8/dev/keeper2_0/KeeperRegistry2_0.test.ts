@@ -1348,7 +1348,7 @@ describe('KeeperRegistry2_0', () => {
             false,
             emptyBytes,
           ),
-        'Pausable: paused',
+        'RegistryPaused()',
       )
     })
 
@@ -2005,7 +2005,7 @@ describe('KeeperRegistry2_0', () => {
           [],
           emptyBytes32,
         ),
-        'Pausable: paused',
+        'RegistryPaused()',
       )
     })
 
@@ -2022,7 +2022,7 @@ describe('KeeperRegistry2_0', () => {
             false,
             emptyBytes,
           ),
-        'Pausable: paused',
+        'RegistryPaused()',
       )
     })
   })
